@@ -6,7 +6,7 @@
 ```
 
 ```bash
-  curl -v "http://localhost:8080/csm-to-avro" \
+  curl -v "http://localhost:8080/api/csm-to-avro" \
     -H "Content-Type: application/json" \
     -d '{
           "BsAqRMv": {
@@ -23,7 +23,7 @@
 ```
 
 ```bash
-curl  "http://localhost:8080/avro-to-csm" -H "Content-Type: application/json" \
+curl  "http://localhost:8080/api/avro-to-csm" -H "Content-Type: application/json" \
   -d '{
     "KL":{"name":"KL","type":"record","fields":[]},
     "BsAqRMv":
