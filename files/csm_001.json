@@ -1,0 +1,12 @@
+{
+  "BsAqRMv": {
+    "union": {
+      "0": "BsAqRMv",
+      "1": "BsAqRMv",
+      "_": "KL"
+    }
+  },
+  "KL": {
+    "product": {}
+  }
+}

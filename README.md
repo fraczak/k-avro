@@ -6,6 +6,13 @@
 ```
 
 ```bash
+cat ./files/csm_001.json \
+| curl -s "http://localhost:8080/api/csm-to-avro" -H "Content-Type: application/json" -d @- \
+| curl -s "http://localhost:8080/api/avro-to-csm" -H "Content-Type: application/json" -d @- \
+| k '()' -1
+```
+
+```bash
   curl -v "http://localhost:8080/api/csm-to-avro" \
     -H "Content-Type: application/json" \
     -d '{

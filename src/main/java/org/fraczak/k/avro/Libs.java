@@ -1,4 +1,4 @@
-package org.conflictbits;
+package org.fraczak.k.avro;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
