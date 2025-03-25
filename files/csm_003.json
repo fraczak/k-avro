@@ -1,0 +1,21 @@
+{ "GXBqszKRIZVxSt": {
+    "union": {
+      "array": "INwIyJVFJyyGIF", 
+      "empty": "KL", 
+      "pair": "JXqEUFYQCFJZHz"
+      }
+    },
+  "INwIyJVFJyyGIF": {
+    "vector": "GXBqszKRIZVxSt"
+  },
+  "JXqEUFYQCFJZHz": {
+    "product": {
+      "0": "GXBqszKRIZVxSt",
+      "1": "GXBqszKRIZVxSt"
+    }
+  },
+  "KL": {
+    "product": {}
+  }
+}
+

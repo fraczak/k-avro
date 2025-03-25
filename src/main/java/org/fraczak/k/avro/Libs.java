@@ -9,46 +9,82 @@ public class Libs {
 
     public static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static JsonNode csmToAvro(String typeName, JsonNode csmMap) {
-        ObjectNode avroSchema = objectMapper.createObjectNode();
-        avroSchema.put("name", typeName);
+    public static JsonNode csmToAvro(String typeName, JsonNode csmType) {
+        ObjectNode avroSchema = Libs.objectMapper.createObjectNode();
+        
+        avroSchema.put("name",typeName);
+        avroSchema.put("type","record");
 
-        JsonNode csmType = csmMap.get(typeName);
-        if (csmType.has("product")) {
-            ArrayNode fields = objectMapper.createArrayNode();
-            JsonNode product = csmType.get("product");
-            product.fieldNames().forEachRemaining(tagName -> {
-                ObjectNode field = objectMapper.createObjectNode();
-                field.put("name", "H_" + toHex(tagName));
-                field.put("type", product.get(tagName).asText());
-                fields.add(field);
-            });
-            avroSchema.put("type", "record");
-            avroSchema.set("fields", fields);
-        } else if (csmType.has("union")) {
-            ArrayNode unionArray = objectMapper.createArrayNode();
+        ArrayNode fields = objectMapper.createArrayNode();
+        ObjectNode theField = objectMapper.createObjectNode();
+        fields.add(theField);
+        avroSchema.set("fields",fields);
+
+        if (csmType.has("union")) {
+            theField.put("name","union");
+            ArrayNode unionType = objectMapper.createArrayNode();
+
             JsonNode union = csmType.get("union");
             union.fieldNames().forEachRemaining(tagName -> {
-                String fieldName = toHex(tagName);
-                ObjectNode variantRecord = objectMapper.createObjectNode();
-                variantRecord.put("name", typeName + "_" + fieldName);
-                variantRecord.put("type", "record");
-                ArrayNode variantFields = objectMapper.createArrayNode();
-                ObjectNode variantField = objectMapper.createObjectNode();
-                variantField.put("name", "H_" + fieldName);
-                variantField.put("type", union.get(tagName).asText());
-                variantFields.add(variantField);
-                variantRecord.set("fields", variantFields);
-                unionArray.add(variantRecord);
+                ObjectNode unionTypeRecord = objectMapper.createObjectNode();
+                unionTypeRecord.put("name", typeName + "_" + toHex(tagName));
+                unionTypeRecord.put("type", "record");
+                ArrayNode unionRecordFields = objectMapper.createArrayNode();
+                ObjectNode unionRecordField = objectMapper.createObjectNode();
+                unionRecordField.put("name","H_" + toHex(tagName));
+                unionRecordField.put("type", union.get(tagName).asText());
+                unionRecordFields.add(unionRecordField);
+                unionTypeRecord.set("fields",unionRecordFields);
+                unionType.add(unionTypeRecord);
             });
-            avroSchema.set("type", unionArray);
+
+            theField.set("type",unionType);
+
+        } else if (csmType.has("product")) {
+            theField.put("name","product");
+
+            ObjectNode productType = Libs.objectMapper.createObjectNode();
+            productType.put("name", typeName + "_record");
+            productType.put("type", "record");
+
+            ArrayNode productTypeFields = Libs.objectMapper.createArrayNode();
+
+            JsonNode product = csmType.get("product");
+            product.fieldNames().forEachRemaining(tagName -> {
+                ObjectNode fieldSpec = objectMapper.createObjectNode();
+                fieldSpec.put("name", "H_" + toHex(tagName));
+                fieldSpec.put("type", product.get(tagName).asText());
+                productTypeFields.add(fieldSpec);
+            });
+            
+            productType.set("fields",productTypeFields);
+            theField.set("type",productType);
+
+        } else if (csmType.has("vector")) {
+            theField.put("name","vector");
+
+            ObjectNode vectorType = Libs.objectMapper.createObjectNode();
+            vectorType.put("name", typeName + "_vector");
+            vectorType.put("type", "record");
+
+            ArrayNode vectorTypeFields = Libs.objectMapper.createArrayNode();
+            ObjectNode vectorTypeField = objectMapper.createObjectNode();
+            vectorTypeField.put("name", "member");
+            vectorTypeField.put("type", csmType.get("vector").asText());
+            vectorTypeFields.add(vectorTypeField);
+            vectorType.set("fields", vectorTypeFields);
+
+            theField.set("type",vectorType);
         } else {
             throw new IllegalArgumentException("Unsupported CSM type: " + typeName);
         }
+
+        // System.out.println(avroSchema.toPrettyString());
+
         return avroSchema;
     }
 
-    public static JsonNode avroToCsm(String typeName, JsonNode avroSchema) {
+    public static JsonNode avroToCsm(JsonNode avroSchema) {
         ObjectNode csmType = objectMapper.createObjectNode();
 
         JsonNode theType = avroSchema.get("type");
@@ -60,6 +96,10 @@ public class Libs {
                 product.put(tagName, field.get("type").asText());
             });
             csmType.set("product", product);
+        } else if (theType.isTextual() && "array".equals(theType.asText())) {
+            ObjectNode product = objectMapper.createObjectNode();
+            String itemType = avroSchema.get("items").asText();
+            csmType.put("vector", itemType);
         } else if (theType.isArray()) {
             ArrayNode unionArray = (ArrayNode) theType;
             ObjectNode union = objectMapper.createObjectNode();

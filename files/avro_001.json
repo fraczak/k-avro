@@ -1,0 +1,60 @@
+{
+  "protocol": "KProtocol",
+  "namespace": "k.avro",
+  "types": [
+    {
+      "name": "BsAqRMv",
+      "type": "record",
+      "fields": [
+        {
+          "name": "union",
+          "type": [
+            {
+              "name": "BsAqRMv_30",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_30",
+                  "type": "BsAqRMv"
+                }
+              ]
+            },
+            {
+              "name": "BsAqRMv_31",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_31",
+                  "type": "BsAqRMv"
+                }
+              ]
+            },{
+              "name": "BsAqRMv_5f",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_5f",
+                  "type": "KL"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KL",
+      "type": "record",
+      "fields": [
+        {
+          "name": "product",
+          "type": {
+            "name": "KL_record",
+            "type": "record",
+            "fields": []
+          }
+        }
+      ]
+    }
+  ]
+}
