@@ -40,7 +40,8 @@ public class CsmToAvroController {
         ArrayNode allTypes = (ArrayNode) avroSchemas.get("types");
         allTypes.forEach(typeNode -> {
             String typeName = typeNode.get("name").asText(); 
-            csmMap.set(typeName, Libs.avroToCsm(typeNode));
+            ObjectNode theField = (ObjectNode) typeNode.get("fields").get(0);
+            csmMap.set(typeName, Libs.avroToCsm(theField));
         });
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_JSON)

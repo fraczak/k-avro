@@ -84,33 +84,36 @@ public class Libs {
         return avroSchema;
     }
 
-    public static JsonNode avroToCsm(JsonNode avroSchema) {
+    public static JsonNode avroToCsm(ObjectNode theField) {
         ObjectNode csmType = objectMapper.createObjectNode();
 
-        JsonNode theType = avroSchema.get("type");
-        if (theType.isTextual() && "record".equals(theType.asText())) {
-            ObjectNode product = objectMapper.createObjectNode();
-            ArrayNode fields = (ArrayNode) avroSchema.get("fields");
-            fields.forEach(field -> {
-                String tagName = fromHex(field.get("name").asText().substring(2));
-                product.put(tagName, field.get("type").asText());
-            });
-            csmType.set("product", product);
-        } else if (theType.isTextual() && "array".equals(theType.asText())) {
-            ObjectNode product = objectMapper.createObjectNode();
-            String itemType = avroSchema.get("items").asText();
-            csmType.put("vector", itemType);
-        } else if (theType.isArray()) {
-            ArrayNode unionArray = (ArrayNode) theType;
-            ObjectNode union = objectMapper.createObjectNode();
-            unionArray.forEach(variant -> {
-                JsonNode variantField = variant.get("fields").get(0);
-                String fieldName = fromHex(variantField.get("name").asText().substring(2));
-                union.put(fieldName, variantField.get("type").asText());
-            });
-            csmType.set("union", union);
-        } else {
-            throw new IllegalArgumentException("Unsupported Avro type: " + avroSchema.get("type").asText());
+        String codeType = theField.get("name").asText();
+        switch (codeType) {
+            case "union": 
+                var union = objectMapper.createObjectNode();
+                var unionArray = (ArrayNode) theField.get("type");
+                unionArray.forEach(variant -> {
+                    ObjectNode field = (ObjectNode) variant.get("fields").get(0);
+                    String variantName = fromHex(field.get("name").asText().substring(2));
+                    union.put(variantName, field.get("type").asText());
+                });
+                csmType.set("union", union);
+                break;
+            case "product":
+                var product = objectMapper.createObjectNode();
+                var fields = (ArrayNode) theField.get("type").get("fields");
+                fields.forEach(field -> {
+                    String tagName = fromHex(field.get("name").asText().substring(2));
+                    product.put(tagName, field.get("type").asText());
+                });
+                csmType.set("product", product);
+                break;
+            case "vector":
+                String memberType = theField.get("type").get("fields").get(0).get("type").asText();
+                csmType.put("vector", memberType);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported Avro type: " + codeType);
         }
 
         return csmType;

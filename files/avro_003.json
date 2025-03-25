@@ -1,0 +1,103 @@
+{
+  "protocol": "KProtocol",
+  "namespace": "k.avro",
+  "types": [
+    {
+      "name": "GXBqszKRIZVxSt",
+      "type": "record",
+      "fields": [
+        {
+          "name": "union",
+          "type": [
+            {
+              "name": "GXBqszKRIZVxSt_6172726179",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_6172726179",
+                  "type": "INwIyJVFJyyGIF"
+                }
+              ]
+            },
+            {
+              "name": "GXBqszKRIZVxSt_656d707479",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_656d707479",
+                  "type": "KL"
+                }
+              ]
+            },
+            {
+              "name": "GXBqszKRIZVxSt_70616972",
+              "type": "record",
+              "fields": [
+                {
+                  "name": "H_70616972",
+                  "type": "JXqEUFYQCFJZHz"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "INwIyJVFJyyGIF",
+      "type": "record",
+      "fields": [
+        {
+          "name": "vector",
+          "type": {
+            "name": "INwIyJVFJyyGIF_vector",
+            "type": "record",
+            "fields": [
+              {
+                "name": "member",
+                "type": "GXBqszKRIZVxSt"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "JXqEUFYQCFJZHz",
+      "type": "record",
+      "fields": [
+        {
+          "name": "product",
+          "type": {
+            "name": "JXqEUFYQCFJZHz_record",
+            "type": "record",
+            "fields": [
+              {
+                "name": "H_30",
+                "type": "GXBqszKRIZVxSt"
+              },
+              {
+                "name": "H_31",
+                "type": "GXBqszKRIZVxSt"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "KL",
+      "type": "record",
+      "fields": [
+        {
+          "name": "product",
+          "type": {
+            "name": "KL_record",
+            "type": "record",
+            "fields": []
+          }
+        }
+      ]
+    }
+  ]
+}
