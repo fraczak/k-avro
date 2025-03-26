@@ -1,5 +1,7 @@
 package org.fraczak.k.avro;
 
+import org.apache.avro.Schema;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -76,7 +78,7 @@ public class Libs {
 
             theField.set("type",vectorType);
         } else {
-            throw new IllegalArgumentException("Unsupported CSM type: " + typeName);
+            throw new IllegalArgumentException("Invalid CSM code: " + csmType);
         }
 
         // System.out.println(avroSchema.toPrettyString());
@@ -84,6 +86,46 @@ public class Libs {
         return avroSchema;
     }
 
+    /* 
+    public static JsonNode avroToCsm2(Schema type) {
+        String codeType = type.getName();
+        switch (codeType) {
+            case "union": 
+                var union = objectMapper.createObjectNode();
+
+                var unionArray = type.getType();
+                unionArray.forEach(variant -> {
+                    ObjectNode field = (ObjectNode) variant.getFields().get(0);
+                    String variantName = fromHex(field.get("name").asText().substring(2));
+                    union.put(variantName, field.get("type").asText());
+                });
+                unionArray.forEach(variant -> {
+                    ObjectNode field = (ObjectNode) variant.get("fields").get(0);
+                    String variantName = fromHex(field.get("name").asText().substring(2));
+                    union.put(variantName, field.get("type").asText());
+                });
+                csmType.set("union", union);
+                break;
+            case "product":
+                var product = objectMapper.createObjectNode();
+                var fields = (ArrayNode) theField.get("type").get("fields");
+                fields.forEach(field -> {
+                    String tagName = fromHex(field.get("name").asText().substring(2));
+                    product.put(tagName, field.get("type").asText());
+                });
+                csmType.set("product", product);
+                break;
+            case "vector":
+                String memberType = theField.get("type").get("fields").get(0).get("type").asText();
+                csmType.put("vector", memberType);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported Avro type: " + codeType);
+        }
+
+        return csmType;
+    }
+*/
     public static JsonNode avroToCsm(ObjectNode theField) {
         ObjectNode csmType = objectMapper.createObjectNode();
 
