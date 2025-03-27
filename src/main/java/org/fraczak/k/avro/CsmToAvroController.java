@@ -44,26 +44,42 @@ public class CsmToAvroController {
     @PostMapping("/avro-to-csm")
     public ResponseEntity<String> convertAvroToCsm(@RequestBody String avroJson) throws IOException {
         logger.info("AVRO->CSM --- INPUT: " + avroJson);
+
+        ObjectNode csmMap = Libs.objectMapper.createObjectNode();
         Protocol protocol;
+
         try {
             protocol = Protocol.parse(avroJson);
         } catch (SchemaParseException e) {
             throw new IllegalArgumentException("Invalid Avro schema: " + e.getMessage());
         }
-        JsonNode avroSchemas = Libs.objectMapper.readTree(avroJson);
+
+        protocol.getTypes().forEach(type -> {
+            String typeName = type.getName();
+            if (typeName.contains("_")) {
+                return;
+            }
+            csmMap.set(typeName, Libs.avroToCsm(type));
+        });
+
+        logger.info("          -- OUTPUT: " + csmMap.toString());
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(csmMap.toString());
+    }
+
+    @PostMapping("/avroJson-to-csm")
+    public ResponseEntity<String> convertAvroJsonToCsm(@RequestBody String avroJson) throws IOException {
+        logger.info("AVRO->CSM --- INPUT: " + avroJson);
 
         ObjectNode csmMap = Libs.objectMapper.createObjectNode();
+       
+        JsonNode avroSchemas = Libs.objectMapper.readTree(avroJson);        
         ArrayNode allTypes = (ArrayNode) avroSchemas.get("types");
 
-        // protocol.getTypes().forEach(type -> {
-        //     String typeName = type.getName();
-        //     csmMap.set(typeName, Libs.avroToCsm2(type));
-        // });
-
         allTypes.forEach(typeNode -> {
-            String typeName = typeNode.get("name").asText(); 
-            ObjectNode theField = (ObjectNode) typeNode.get("fields").get(0);
-            csmMap.set(typeName, Libs.avroToCsm(theField));
+            String typeName = typeNode.get("name").asText();
+            csmMap.set(typeName, Libs.avroJsonToCsm(typeNode));
         });
 
         logger.info("          -- OUTPUT: " + csmMap.toString());

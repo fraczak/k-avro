@@ -1,6 +1,7 @@
 package org.fraczak.k.avro;
 
 import org.apache.avro.Schema;
+import org.apache.avro.Schema.Field;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -86,49 +87,47 @@ public class Libs {
         return avroSchema;
     }
 
-    /* 
-    public static JsonNode avroToCsm2(Schema type) {
-        String codeType = type.getName();
-        switch (codeType) {
+    
+    public static JsonNode avroToCsm(Schema type) {
+        Field theField = type.getFields().get(0);
+
+        ObjectNode csmType = objectMapper.createObjectNode();
+
+        switch (theField.name()) {
             case "union": 
                 var union = objectMapper.createObjectNode();
-
-                var unionArray = type.getType();
+                var unionArray = theField.schema().getTypes();
                 unionArray.forEach(variant -> {
-                    ObjectNode field = (ObjectNode) variant.getFields().get(0);
-                    String variantName = fromHex(field.get("name").asText().substring(2));
-                    union.put(variantName, field.get("type").asText());
-                });
-                unionArray.forEach(variant -> {
-                    ObjectNode field = (ObjectNode) variant.get("fields").get(0);
-                    String variantName = fromHex(field.get("name").asText().substring(2));
-                    union.put(variantName, field.get("type").asText());
+                    Field field = variant.getFields().get(0);
+                    String variantName = fromHex(field.name().substring(2));
+                    union.put(variantName, field.schema().getName());
                 });
                 csmType.set("union", union);
                 break;
             case "product":
                 var product = objectMapper.createObjectNode();
-                var fields = (ArrayNode) theField.get("type").get("fields");
+                var fields = theField.schema().getFields();
                 fields.forEach(field -> {
-                    String tagName = fromHex(field.get("name").asText().substring(2));
-                    product.put(tagName, field.get("type").asText());
+                    String tagName = fromHex(field.name().substring(2));
+                    product.put(tagName, field.schema().getName());
                 });
                 csmType.set("product", product);
                 break;
             case "vector":
-                String memberType = theField.get("type").get("fields").get(0).get("type").asText();
+                String memberType = theField.schema().getField("member").schema().getName();
                 csmType.put("vector", memberType);
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported Avro type: " + codeType);
+               throw new IllegalArgumentException("Unsupported Avro type: " + type);
         }
 
         return csmType;
     }
-*/
-    public static JsonNode avroToCsm(ObjectNode theField) {
-        ObjectNode csmType = objectMapper.createObjectNode();
 
+    public static JsonNode avroJsonToCsm(JsonNode typeNode) {
+        ObjectNode csmType = objectMapper.createObjectNode();
+         
+        ObjectNode theField = (ObjectNode) typeNode.get("fields").get(0);
         String codeType = theField.get("name").asText();
         switch (codeType) {
             case "union": 
