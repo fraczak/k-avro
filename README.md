@@ -43,3 +43,9 @@ curl  "http://localhost:8080/api/avro-to-csm" -H "Content-Type: application/json
       }
     }'
 ```
+
+```bash
+alias csm-to-avro='curl -s "http://localhost:8080/api/csm-to-avro" -H "Content-Type: application/json" -d @- '
+alias avro-to-csm='curl -s "http://localhost:8080/api/avro-to-csm" -H "Content-Type: application/json" -d @- '
+alias avroJson-to-csm='curl -s "http://localhost:8080/api/avroJson-to-csm" -H "Content-Type: application/json" -d @- '
+```
